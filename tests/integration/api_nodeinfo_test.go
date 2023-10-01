@@ -4,6 +4,7 @@
 package integration
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 	"testing"
@@ -17,10 +18,10 @@ import (
 
 func TestNodeinfo(t *testing.T) {
 	setting.Federation.Enabled = true
-	testWebRoutes = routers.NormalRoutes()
+	testWebRoutes = routers.NormalRoutes(context.Background())
 	defer func() {
 		setting.Federation.Enabled = false
-		testWebRoutes = routers.NormalRoutes()
+		testWebRoutes = routers.NormalRoutes(context.Background())
 	}()
 
 	onGiteaRun(t, func(*testing.T, *url.URL) {

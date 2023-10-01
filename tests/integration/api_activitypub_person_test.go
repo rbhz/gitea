@@ -23,10 +23,10 @@ import (
 
 func TestActivityPubPerson(t *testing.T) {
 	setting.Federation.Enabled = true
-	testWebRoutes = routers.NormalRoutes()
+	testWebRoutes = routers.NormalRoutes(context.Background())
 	defer func() {
 		setting.Federation.Enabled = false
-		testWebRoutes = routers.NormalRoutes()
+		testWebRoutes = routers.NormalRoutes(context.Background())
 	}()
 
 	onGiteaRun(t, func(*testing.T, *url.URL) {
@@ -61,10 +61,10 @@ func TestActivityPubPerson(t *testing.T) {
 
 func TestActivityPubMissingPerson(t *testing.T) {
 	setting.Federation.Enabled = true
-	testWebRoutes = routers.NormalRoutes()
+	testWebRoutes = routers.NormalRoutes(context.Background())
 	defer func() {
 		setting.Federation.Enabled = false
-		testWebRoutes = routers.NormalRoutes()
+		testWebRoutes = routers.NormalRoutes(context.Background())
 	}()
 
 	onGiteaRun(t, func(*testing.T, *url.URL) {
@@ -76,10 +76,10 @@ func TestActivityPubMissingPerson(t *testing.T) {
 
 func TestActivityPubPersonInbox(t *testing.T) {
 	setting.Federation.Enabled = true
-	testWebRoutes = routers.NormalRoutes()
+	testWebRoutes = routers.NormalRoutes(context.Background())
 	defer func() {
 		setting.Federation.Enabled = false
-		testWebRoutes = routers.NormalRoutes()
+		testWebRoutes = routers.NormalRoutes(context.Background())
 	}()
 
 	srv := httptest.NewServer(testWebRoutes)

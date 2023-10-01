@@ -136,8 +136,8 @@ func InitWebInstalled(ctx context.Context) {
 	mustInitCtx(ctx, common.InitDBEngine)
 	log.Info("ORM engine initialization successful!")
 	mustInit(system.Init)
-	mustInit(oauth2.Init)
 
+	mustInitCtx(ctx, oauth2.Init)
 	mustInitCtx(ctx, models.Init)
 	mustInitCtx(ctx, authmodel.Init)
 	mustInitCtx(ctx, repo_service.Init)
@@ -168,13 +168,13 @@ func InitWebInstalled(ctx context.Context) {
 }
 
 // NormalRoutes represents non install routes
-func NormalRoutes() *web.Route {
+func NormalRoutes(ctx context.Context) *web.Route {
 	_ = templates.HTMLRenderer()
 	r := web.NewRoute()
 	r.Use(common.ProtocolMiddlewares()...)
 
-	r.Mount("/", web_routers.Routes())
-	r.Mount("/api/v1", apiv1.Routes())
+	r.Mount("/", web_routers.Routes(ctx))
+	r.Mount("/api/v1", apiv1.Routes(ctx))
 	r.Mount("/api/internal", private.Routes())
 
 	r.Post("/-/fetch-redirect", common.FetchRedirectDelegate)

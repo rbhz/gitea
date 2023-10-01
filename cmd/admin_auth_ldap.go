@@ -17,9 +17,9 @@ import (
 type (
 	authService struct {
 		initDB            func(ctx context.Context) error
-		createAuthSource  func(*auth.Source) error
-		updateAuthSource  func(*auth.Source) error
-		getAuthSourceByID func(id int64) (*auth.Source, error)
+		createAuthSource  func(context.Context, *auth.Source) error
+		updateAuthSource  func(context.Context, *auth.Source) error
+		getAuthSourceByID func(ctx context.Context, id int64) (*auth.Source, error)
 	}
 )
 
@@ -294,7 +294,10 @@ func (a *authService) getAuthSource(c *cli.Context, authType auth.Type) (*auth.S
 		return nil, err
 	}
 
-	authSource, err := a.getAuthSourceByID(c.Int64("id"))
+	ctx, cancel := installSignals()
+	defer cancel()
+
+	authSource, err := a.getAuthSourceByID(ctx, c.Int64("id"))
 	if err != nil {
 		return nil, err
 	}
@@ -332,7 +335,7 @@ func (a *authService) addLdapBindDn(c *cli.Context) error {
 		return err
 	}
 
-	return a.createAuthSource(authSource)
+	return a.createAuthSource(ctx, authSource)
 }
 
 // updateLdapBindDn updates a new LDAP via Bind DN authentication source.
@@ -354,7 +357,7 @@ func (a *authService) updateLdapBindDn(c *cli.Context) error {
 		return err
 	}
 
-	return a.updateAuthSource(authSource)
+	return a.updateAuthSource(ctx, authSource)
 }
 
 // addLdapSimpleAuth adds a new LDAP (simple auth) authentication source.
@@ -383,7 +386,7 @@ func (a *authService) addLdapSimpleAuth(c *cli.Context) error {
 		return err
 	}
 
-	return a.createAuthSource(authSource)
+	return a.createAuthSource(ctx, authSource)
 }
 
 // updateLdapBindDn updates a new LDAP (simple auth) authentication source.
@@ -405,5 +408,5 @@ func (a *authService) updateLdapSimpleAuth(c *cli.Context) error {
 		return err
 	}
 
-	return a.updateAuthSource(authSource)
+	return a.updateAuthSource(ctx, authSource)
 }

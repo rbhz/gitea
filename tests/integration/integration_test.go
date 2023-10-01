@@ -87,7 +87,7 @@ func TestMain(m *testing.M) {
 	defer cancel()
 
 	tests.InitTest(true)
-	testWebRoutes = routers.NormalRoutes()
+	testWebRoutes = routers.NormalRoutes(context.Background())
 
 	// integration test settings...
 	if setting.CfgProvider != nil {

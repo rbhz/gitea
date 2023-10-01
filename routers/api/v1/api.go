@@ -64,6 +64,7 @@
 package v1
 
 import (
+	gocontext "context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -706,7 +707,7 @@ func bind[T any](_ T) any {
 //
 // The Session plugin is expected to be executed second, in order to skip authentication
 // for users that have already signed in.
-func buildAuthGroup() *auth.Group {
+func buildAuthGroup(ctx gocontext.Context) *auth.Group {
 	group := auth.NewGroup(
 		&auth.OAuth2{},
 		&auth.HTTPSign{},
@@ -716,7 +717,7 @@ func buildAuthGroup() *auth.Group {
 		group.Add(&auth.ReverseProxy{})
 	}
 
-	if setting.IsWindows && auth_model.IsSSPIEnabled() {
+	if setting.IsWindows && auth_model.IsSSPIEnabled(ctx) {
 		group.Add(&auth.SSPI{}) // it MUST be the last, see the comment of SSPI
 	}
 
@@ -824,7 +825,7 @@ func verifyAuthWithOptions(options *common.VerifyOptions) func(ctx *context.APIC
 }
 
 // Routes registers all v1 APIs routes to web application.
-func Routes() *web.Route {
+func Routes(ctx gocontext.Context) *web.Route {
 	m := web.NewRoute()
 
 	m.Use(securityHeaders())
@@ -842,7 +843,7 @@ func Routes() *web.Route {
 	m.Use(context.APIContexter())
 
 	// Get user from session if logged in.
-	m.Use(apiAuth(buildAuthGroup()))
+	m.Use(apiAuth(buildAuthGroup(ctx)))
 
 	m.Use(verifyAuthWithOptions(&common.VerifyOptions{
 		SignInRequired: setting.Service.RequireSignInView,

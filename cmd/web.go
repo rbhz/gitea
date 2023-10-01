@@ -150,7 +150,7 @@ func serveInstall(ctx *cli.Context) error {
 	return nil
 }
 
-func serveInstalled(ctx *cli.Context) error {
+func serveInstalled(c *cli.Context) error {
 	setting.InitCfgProvider(setting.CustomConf)
 	setting.LoadCommonSettings()
 	setting.MustInstalled()
@@ -201,14 +201,17 @@ func serveInstalled(ctx *cli.Context) error {
 	}
 
 	// Override the provided port number within the configuration
-	if ctx.IsSet("port") {
-		if err := setPort(ctx.String("port")); err != nil {
+	if c.IsSet("port") {
+		if err := setPort(c.String("port")); err != nil {
 			return err
 		}
 	}
 
+	ctx, cancel := installSignals()
+	defer cancel()
+
 	// Set up Chi routes
-	webRoutes := routers.NormalRoutes()
+	webRoutes := routers.NormalRoutes(ctx)
 	err := listen(webRoutes, true)
 	<-graceful.GetManager().Done()
 	log.Info("PID: %d Gitea Web Finished", os.Getpid())

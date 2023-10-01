@@ -38,7 +38,7 @@ func TestMain(m *testing.M) {
 	defer cancel()
 
 	tests.InitTest(false)
-	testE2eWebRoutes = routers.NormalRoutes()
+	testE2eWebRoutes = routers.NormalRoutes(context.Background())
 
 	os.Unsetenv("GIT_AUTHOR_NAME")
 	os.Unsetenv("GIT_AUTHOR_EMAIL")

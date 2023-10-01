@@ -204,7 +204,7 @@ func DeleteUser(ctx context.Context, u *user_model.User, purge bool) error {
 				break
 			}
 			for _, org := range orgs {
-				if err := models.RemoveOrgUser(org.ID, u.ID); err != nil {
+				if err := models.RemoveOrgUser(ctx, org.ID, u.ID); err != nil {
 					if organization.IsErrLastOrgOwner(err) {
 						err = organization.DeleteOrganization(ctx, org)
 					}
@@ -223,7 +223,7 @@ func DeleteUser(ctx context.Context, u *user_model.User, purge bool) error {
 		}
 	}
 
-	ctx, committer, err := db.TxContext(db.DefaultContext)
+	ctx, committer, err := db.TxContext(ctx)
 	if err != nil {
 		return err
 	}

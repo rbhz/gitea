@@ -84,7 +84,7 @@ func CorsHandler() func(next http.Handler) http.Handler {
 //
 // The Session plugin is expected to be executed second, in order to skip authentication
 // for users that have already signed in.
-func buildAuthGroup() *auth_service.Group {
+func buildAuthGroup(ctx gocontext.Context) *auth_service.Group {
 	group := auth_service.NewGroup(
 		&auth_service.OAuth2{}, // FIXME: this should be removed and only applied in download and oauth related routers
 		&auth_service.Basic{},  // FIXME: this should be removed and only applied in download and git/lfs routers
@@ -94,7 +94,7 @@ func buildAuthGroup() *auth_service.Group {
 		group.Add(&auth_service.ReverseProxy{})
 	}
 
-	if setting.IsWindows && auth_model.IsSSPIEnabled() {
+	if setting.IsWindows && auth_model.IsSSPIEnabled(ctx) {
 		group.Add(&auth_service.SSPI{}) // it MUST be the last, see the comment of SSPI
 	}
 
@@ -213,7 +213,7 @@ func ctxDataSet(args ...any) func(ctx *context.Context) {
 }
 
 // Routes returns all web routes
-func Routes() *web.Route {
+func Routes(ctx gocontext.Context) *web.Route {
 	routes := web.NewRoute()
 
 	routes.Head("/", misc.DummyOK) // for health check - doesn't need to be passed through gzip handler
@@ -253,7 +253,7 @@ func Routes() *web.Route {
 	mid = append(mid, common.Sessioner(), context.Contexter())
 
 	// Get user from session if logged in.
-	mid = append(mid, webAuth(buildAuthGroup()))
+	mid = append(mid, webAuth(buildAuthGroup(ctx)))
 
 	// GetHead allows a HEAD request redirect to GET if HEAD method is not defined for that route
 	mid = append(mid, chi_middleware.GetHead)

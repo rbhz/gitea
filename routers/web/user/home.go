@@ -759,7 +759,7 @@ func loadRepoByIDs(ctxUser *user_model.User, issueCountByRepo map[int64]int64, u
 
 // ShowSSHKeys output all the ssh keys of user by uid
 func ShowSSHKeys(ctx *context.Context) {
-	keys, err := asymkey_model.ListPublicKeys(ctx.ContextUser.ID, db.ListOptions{})
+	keys, err := asymkey_model.ListPublicKeys(ctx, ctx.ContextUser.ID, db.ListOptions{})
 	if err != nil {
 		ctx.ServerError("ListPublicKeys", err)
 		return
@@ -784,7 +784,7 @@ func ShowGPGKeys(ctx *context.Context) {
 	entities := make([]*openpgp.Entity, 0)
 	failedEntitiesID := make([]string, 0)
 	for _, k := range keys {
-		e, err := asymkey_model.GPGKeyToEntity(k)
+		e, err := asymkey_model.GPGKeyToEntity(ctx, k)
 		if err != nil {
 			if asymkey_model.IsErrGPGKeyImportNotExist(err) {
 				failedEntitiesID = append(failedEntitiesID, k.KeyID)
